@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.Events;
 using WebSocketSharp;
 
 public class Client : MonoBehaviour
@@ -56,13 +57,5 @@ public class Client : MonoBehaviour
     public void SendData(byte[] data)
     {
         _ws.Send(data);
-    }
-
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            SendData(System.Text.Encoding.UTF8.GetBytes("Hello World"));
-        }
     }
 }

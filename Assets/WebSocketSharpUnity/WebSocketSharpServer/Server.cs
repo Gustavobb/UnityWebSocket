@@ -28,7 +28,7 @@ public class Server : MonoBehaviour
         _wsServer = new WebSocketServer(_address);
 
         // add the behaviors to the server
-        AddImageBehavior();
+        AddSocketBehavior();
 
         // start the server
         _wsServer.Start();
@@ -39,9 +39,9 @@ public class Server : MonoBehaviour
         _wsServer.Stop();
     }
 
-    private void AddImageBehavior()
+    private void AddSocketBehavior()
     {
         // add the behavior to the server
-        _wsServer.AddWebSocketService<ImageWebSocketBehaviour>("/Image");
+        _wsServer.AddWebSocketService<ServerWebSocketBehaviour>("/Image");
     }
 }

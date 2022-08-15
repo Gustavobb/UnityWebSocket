@@ -1,4 +1,6 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using WebSocketSharp;
 using WebSocketSharp.Server;
@@ -13,6 +15,7 @@ public class Server : MonoBehaviour
     public int Port { get { return _port; } }
     public string Host { get { return _host; } }
     public string Address { get { return _address; } }
+    public WebSocketServer WsServer { get { return _wsServer; } }
 
     private void Awake()
     {
@@ -21,29 +24,24 @@ public class Server : MonoBehaviour
 
     private void InitServer()
     {
+        // create a new WebSocket server
         _wsServer = new WebSocketServer(_address);
-        _wsServer.AddWebSocketService<Laputa>("/Laputa");
-        _wsServer.AddWebSocketService<ImageSocketBehaviour>("/Image");
+
+        // add the behaviors to the server
+        AddImageBehavior();
+
+        // start the server
         _wsServer.Start();
-        Console.ReadKey(true);
-        Debug.Log("Server started at " + _address);
     }
 
     private void OnDestroy()
     {
         _wsServer.Stop();
     }
-}
 
-public class Laputa : WebSocketBehavior
-{
-    protected override void OnMessage(MessageEventArgs e)
+    private void AddImageBehavior()
     {
-        Debug.Log("Laputa got: " + e.Data);
-        string msg = e.Data == "BALUS"
-                ? "Are you kidding?"
-                : "I'm not available now.";
-
-        Send(msg);
+        // add the behavior to the server
+        _wsServer.AddWebSocketService<ImageWebSocketBehaviour>("/Image");
     }
 }

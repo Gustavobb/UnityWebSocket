@@ -7,41 +7,62 @@ public class Client : MonoBehaviour
     private WebSocket _ws;
     [SerializeField] private int _port = 4649;
     [SerializeField] private string _host = "localhost";
-    [SerializeField] private string _service = "Laputa";
-    [SerializeField] private Texture2D _texture;
+    [SerializeField] private string _service = "Image";
     private string _address { get { return "ws://" + _host + ":" + _port + "/" + _service; } }
-
-    private byte[] _bytes;
 
     private void Start()
     {
-        _bytes = ImageConversion.EncodeArrayToPNG(_texture.GetRawTextureData(), _texture.graphicsFormat, (uint)_texture.width, (uint)_texture.height);
         InitClient();
     }
 
     private void InitClient()
     {
+        // create a new WebSocket and connect to the server
         _ws = new WebSocket(_address);
         _ws.Connect();
-        _ws.OnMessage += (sender, e) => Debug.Log(_service + " says: " + e.Data);
-        Console.ReadKey(true);
-        Debug.Log("Client connected to " + _address);
+
+        // subscribe to the events
+        _ws.OnOpen += OnOpen;
+        _ws.OnMessage += OnMessage;
+        _ws.OnError += OnError;
+        _ws.OnClose += OnClose;
     }
 
     private void OnDestroy()
     {
-        _ws.Close ();
+        _ws.Close();
+    }
+
+    private void OnMessage(object sender, MessageEventArgs e)
+    {
+        Debug.Log("Client got: " + e.Data);
+    }
+
+    private void OnOpen(object sender, EventArgs e)
+    {
+        Debug.Log("Client connected to " + _address);
+    }
+
+    private void OnError(object sender, ErrorEventArgs e)
+    {
+        Debug.Log("Client error: " + e.Message);
+    }
+
+    private void OnClose(object sender, CloseEventArgs e)
+    {
+        Debug.Log("Client closed with reason: " + e.Reason);
+    }
+
+    public void SendData(byte[] data)
+    {
+        _ws.Send(data);
     }
 
     private void Update()
     {
-        if(_ws == null)
-            return;
-
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            print("Sending... " + _bytes.Length);
-            _ws.Send(_bytes);
+            SendData(System.Text.Encoding.UTF8.GetBytes("Hello World"));
         }
     }
 }
